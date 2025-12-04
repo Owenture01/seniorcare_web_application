@@ -51,27 +51,58 @@ const generateHistory = (days: number, trend: 'stable' | 'declining' | 'improvin
 export const MOCK_PATIENTS: Patient[] = [
   {
     id: 'p1',
-    name: 'Eleanor Rigby',
+    name: 'Dad',
     age: 78,
+    role: 'Your Father',
+    status: 'online',
+    avatar: 'DA',
     condition: 'Mild Cognitive Impairment',
     avatarUrl: 'https://picsum.photos/id/64/200/200',
-    history: generateHistory(30, 'stable')
+    history: generateHistory(30, 'stable'),
+    lastMessage: 'Thanks for checking in! I\'m doing well today.',
+    messages: [
+      { type: 'received', content: 'Good morning! Just finished my breakfast.', time: '8:30 AM' },
+      { type: 'sent', content: 'That\'s great, Dad! How are you feeling today?', time: '8:35 AM' },
+      { type: 'received', content: 'Feeling good! The weather is nice.', time: '8:40 AM' },
+      { type: 'sent', content: 'Did you take your morning medication?', time: '8:42 AM' },
+      { type: 'received', content: 'Thanks for checking in! I\'m doing well today.', time: '8:45 AM' }
+    ]
   },
   {
     id: 'p2',
-    name: 'Robert C. Miller',
+    name: 'Mom',
     age: 82,
+    role: 'Your Mother',
+    status: 'online',
+    avatar: 'MO',
     condition: 'Early Stage Alzheimer\'s',
     avatarUrl: 'https://picsum.photos/id/91/200/200',
-    history: generateHistory(30, 'declining')
+    history: generateHistory(30, 'declining'),
+    lastMessage: 'Yes, I did! Sarah reminded me this morning.',
+    messages: [
+      { type: 'received', content: 'Good morning! I just finished my morning exercises.', time: '9:15 AM' },
+      { type: 'sent', content: 'That\'s wonderful, Mom! How are you feeling today?', time: '9:18 AM' },
+      { type: 'received', content: 'Feeling great! The weather is lovely today.', time: '9:20 AM' },
+      { type: 'sent', content: 'I\'m glad to hear that. Did you take your medication?', time: '9:22 AM' },
+      { type: 'received', content: 'Yes, I did! Sarah reminded me this morning.', time: '9:25 AM' }
+    ]
   },
   {
     id: 'p3',
-    name: 'Margaret Hale',
+    name: 'Uncle Toh',
+    role: 'Your Uncle',
+    status: 'online',
+    avatar: 'UT',
     age: 74,
     condition: 'Post-Stroke Recovery',
     avatarUrl: 'https://picsum.photos/id/65/200/200',
-    history: generateHistory(30, 'improving')
+    history: generateHistory(30, 'improving'),
+    lastMessage: 'The therapy is really helping. Thank you!',
+    messages: [
+      { type: 'received', content: 'Hi! Just completed my physical therapy session.', time: 'Yesterday' },
+      { type: 'sent', content: 'That\'s excellent! How did it go?', time: 'Yesterday' },
+      { type: 'received', content: 'The therapy is really helping. Thank you!', time: 'Yesterday' }
+    ]
   }
 ];
 

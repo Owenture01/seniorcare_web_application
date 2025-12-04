@@ -1,61 +1,118 @@
 import React, { useState, useRef, useEffect } from 'react';
-
-interface Message {
-  type: 'sent' | 'received';
-  content: string;
-  time: string;
-}
-
-interface Contact {
-  id: number;
-  name: string;
-  role: string;
-  avatar: string;
-  status: 'online' | 'offline';
-  lastMessage: string;
-}
+import { Mic, StopCircle, Play, Pause } from 'lucide-react';
+import { MOCK_PATIENTS } from '../services/dataService';
+import { Patient, ChatMessage } from '../types';
 
 interface MessagesState {
-  [key: number]: Message[];
+  [key: string]: ChatMessage[];
 }
 
-const Chat: React.FC = () => {
-  const [selectedContact, setSelectedContact] = useState<number>(0);
-  const [messages, setMessages] = useState<MessagesState>({
-    0: [
-      { type: 'received', content: 'Good morning! I just finished my morning exercises.', time: '9:15 AM' },
-      { type: 'sent', content: 'That\'s wonderful, Mom! How are you feeling today?', time: '9:18 AM' },
-      { type: 'received', content: 'Feeling great! The weather is lovely today.', time: '9:20 AM' },
-      { type: 'sent', content: 'I\'m glad to hear that. Did you take your medication?', time: '9:22 AM' },
-      { type: 'received', content: 'Yes, I did! Sarah reminded me this morning.', time: '9:25 AM' }
-    ],
-    1: [
-      { type: 'received', content: 'Hi, just wanted to update you on your mother\'s progress.', time: 'Yesterday' },
-      { type: 'sent', content: 'Thank you! How did she do today?', time: 'Yesterday' },
-      { type: 'received', content: 'She did wonderfully! Completed all her exercises and was in great spirits.', time: 'Yesterday' }
-    ]
-  });
-  const [inputValue, setInputValue] = useState<string>('');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+// Voice Message Component with animated sound bars
+const VoiceMessage: React.FC<{ 
+  audioUrl: string; 
+  duration: string; 
+  isSent: boolean;
+  avatar: string;
+}> = ({ audioUrl, duration, isSent, avatar }) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
-  const contacts: Contact[] = [
-    {
-      id: 0,
-      name: 'Margaret Johnson',
-      role: 'Your Mother',
-      avatar: 'MJ',
-      status: 'online',
-      lastMessage: 'Yes, I did! Sarah reminded me this morning.'
-    },
-    {
-      id: 1,
-      name: 'Sarah Williams',
-      role: 'Care Assistant',
-      avatar: 'SW',
-      status: 'online',
-      lastMessage: 'She did wonderfully! Completed all...'
+  const togglePlay = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
     }
-  ];
+  };
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      const handleEnded = () => setIsPlaying(false);
+      audio.addEventListener('ended', handleEnded);
+      return () => audio.removeEventListener('ended', handleEnded);
+    }
+  }, []);
+
+  // Generate animated sound bars
+  const bars = Array.from({ length: 25 }, (_, i) => {
+    const height = Math.random() * 60 + 40; // Random height between 40-100%
+    const animationDelay = Math.random() * 0.5; // Random delay
+    return (
+      <div
+        key={i}
+        className={`w-1 rounded-full transition-all ${
+          isSent ? 'bg-white' : 'bg-indigo-600'
+        }`}
+        style={{
+          height: isPlaying ? `${height}%` : '30%',
+          animation: isPlaying ? `pulse 0.8s ease-in-out infinite` : 'none',
+          animationDelay: `${animationDelay}s`,
+        }}
+      />
+    );
+  });
+
+  return (
+    <div className="flex items-center gap-3">
+      <button
+        onClick={togglePlay}
+        className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${
+          isSent 
+            ? 'bg-white/20 hover:bg-white/30 text-white' 
+            : 'bg-indigo-100 hover:bg-indigo-200 text-indigo-600'
+        }`}
+      >
+        {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
+      </button>
+      
+      <div className="flex items-center gap-1 h-10 flex-1 min-w-0">
+        {bars}
+      </div>
+      
+      <span className={`text-xs font-medium flex-shrink-0 ${isSent ? 'text-white/90' : 'text-slate-500'}`}>
+        {duration}
+      </span>
+      
+      <audio ref={audioRef} src={audioUrl} />
+      
+      <style jsx>{`
+        @keyframes pulse {
+          0%, 100% { transform: scaleY(1); }
+          50% { transform: scaleY(1.5); }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+interface ChatProps {
+  initialContactId?: string;
+}
+
+const Chat: React.FC<ChatProps> = ({ initialContactId }) => {
+  // Use patient IDs as keys instead of indices
+  const [selectedContact, setSelectedContact] = useState<string>(
+    initialContactId || MOCK_PATIENTS[0].id
+  );
+  
+  // Initialize messages from MOCK_PATIENTS data
+  const initialMessages: MessagesState = {};
+  MOCK_PATIENTS.forEach(patient => {
+    initialMessages[patient.id] = [...patient.messages];
+  });
+  
+  const [messages, setMessages] = useState<MessagesState>(initialMessages);
+  const [inputValue, setInputValue] = useState<string>('');
+  const [isRecording, setIsRecording] = useState<boolean>(false);
+  const [recordingTime, setRecordingTime] = useState<number>(0);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -65,10 +122,17 @@ const Chat: React.FC = () => {
     scrollToBottom();
   }, [messages, selectedContact]);
 
+  // Update selected contact when initialContactId changes
+  useEffect(() => {
+    if (initialContactId) {
+      setSelectedContact(initialContactId);
+    }
+  }, [initialContactId]);
+
   const handleSendMessage = (): void => {
     if (inputValue.trim() === '') return;
 
-    const newMessage: Message = {
+    const newMessage: ChatMessage = {
       type: 'sent',
       content: inputValue,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -80,8 +144,9 @@ const Chat: React.FC = () => {
     }));
     setInputValue('');
 
-    // Simulate response after a delay
-    if (selectedContact === 0) {
+    // Simulate response after a delay from the selected patient
+    const selectedPatient = MOCK_PATIENTS.find(p => p.id === selectedContact);
+    if (selectedPatient && selectedPatient.id === 'p2') { // Mom responds
       setTimeout(() => {
         const responses = [
           "That's nice to hear, dear! 💕",
@@ -91,7 +156,7 @@ const Chat: React.FC = () => {
           "That makes me smile!"
         ];
         const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-        const responseMessage: Message = {
+        const responseMessage: ChatMessage = {
           type: 'received',
           content: randomResponse,
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -111,7 +176,81 @@ const Chat: React.FC = () => {
     }
   };
 
-  const selectedContactData = contacts[selectedContact];
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const audioUrl = URL.createObjectURL(audioBlob);
+        
+        // Send voice message
+        const duration = `${Math.floor(recordingTime / 60)}:${(recordingTime % 60).toString().padStart(2, '0')}`;
+        const voiceMessage: ChatMessage = {
+          type: 'sent',
+          content: audioUrl,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          isVoice: true,
+          duration: duration
+        };
+
+        setMessages(prev => ({
+          ...prev,
+          [selectedContact]: [...(prev[selectedContact] || []), voiceMessage]
+        }));
+
+        // Clean up
+        stream.getTracks().forEach(track => track.stop());
+        setRecordingTime(0);
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+
+      // Start timer
+      recordingIntervalRef.current = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+      alert('Unable to access microphone. Please grant permission to record audio.');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      if (recordingIntervalRef.current) {
+        clearInterval(recordingIntervalRef.current);
+      }
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      // Cleanup on unmount
+      if (recordingIntervalRef.current) {
+        clearInterval(recordingIntervalRef.current);
+      }
+      if (mediaRecorderRef.current && isRecording) {
+        mediaRecorderRef.current.stop();
+      }
+    };
+  }, [isRecording]);
+
+  const selectedContactData = MOCK_PATIENTS.find(p => p.id === selectedContact);
+  
+  if (!selectedContactData) return null;
 
   return (
     <div className="flex h-[calc(100vh-12rem)] max-h-[800px] bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
@@ -121,22 +260,22 @@ const Chat: React.FC = () => {
           <h3 className="font-semibold text-slate-800">Contacts</h3>
         </div>
         <div className="flex-1 overflow-y-auto">
-          {contacts.map((contact) => (
+          {MOCK_PATIENTS.map((patient) => (
             <div
-              key={contact.id}
+              key={patient.id}
               className={`flex items-center p-4 cursor-pointer transition-colors border-b border-slate-100 hover:bg-slate-50 ${
-                selectedContact === contact.id ? 'bg-indigo-50 border-l-4 border-l-indigo-600' : ''
+                selectedContact === patient.id ? 'bg-indigo-50 border-l-4 border-l-indigo-600' : ''
               }`}
-              onClick={() => setSelectedContact(contact.id)}
+              onClick={() => setSelectedContact(patient.id)}
             >
               <div className="w-12 h-12 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-sm">
-                {contact.avatar}
+                {patient.avatar}
               </div>
               <div className="ml-3 flex-1 min-w-0">
-                <h4 className="font-medium text-slate-800 truncate">{contact.name}</h4>
-                <p className="text-sm text-slate-500 truncate">{contact.lastMessage}</p>
+                <h4 className="font-medium text-slate-800 truncate">{patient.name}</h4>
+                <p className="text-sm text-slate-500 truncate">{patient.lastMessage}</p>
               </div>
-              <div className={`w-2.5 h-2.5 rounded-full ${contact.status === 'online' ? 'bg-green-500' : 'bg-slate-300'}`}></div>
+              <div className={`w-2.5 h-2.5 rounded-full ${patient.status === 'online' ? 'bg-green-500' : 'bg-slate-300'}`}></div>
             </div>
           ))}
         </div>
@@ -179,27 +318,44 @@ const Chat: React.FC = () => {
           {(messages[selectedContact] || []).map((message, index) => (
             <div 
               key={index} 
-              className={`flex flex-col mb-4 ${message.type === 'sent' ? 'items-end' : 'items-start'}`}
+              className={`flex gap-2 mb-4 ${message.type === 'sent' ? 'flex-row-reverse' : 'flex-row'}`}
             >
-              <div 
-                className={`max-w-md px-4 py-2.5 rounded-2xl ${
-                  message.type === 'sent' 
-                    ? 'bg-indigo-600 text-white rounded-tr-sm' 
-                    : 'bg-white text-slate-800 border border-slate-200 rounded-tl-sm'
-                }`}
-              >
-                {message.content}
+              {/* Avatar */}
+              <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-xs flex-shrink-0">
+                {message.type === 'sent' ? 'JS' : selectedContactData.avatar}
               </div>
-              <span className="text-xs text-slate-400 mt-1 px-1">
-                {message.time}
-              </span>
+              
+              {/* Message Content */}
+              <div className={`flex flex-col ${message.type === 'sent' ? 'items-end' : 'items-start'}`}>
+                <div 
+                  className={`${message.isVoice ? 'min-w-[300px]' : 'max-w-md'} px-4 py-2.5 rounded-2xl ${
+                    message.type === 'sent' 
+                      ? 'bg-indigo-600 text-white rounded-tr-sm' 
+                      : 'bg-white text-slate-800 border border-slate-200 rounded-tl-sm'
+                  }`}
+                >
+                  {message.isVoice ? (
+                    <VoiceMessage 
+                      audioUrl={message.content} 
+                      duration={message.duration || '0:00'} 
+                      isSent={message.type === 'sent'}
+                      avatar={selectedContactData.avatar}
+                    />
+                  ) : (
+                    message.content
+                  )}
+                </div>
+                <span className="text-xs text-slate-400 mt-1 px-1">
+                  {message.time}
+                </span>
+              </div>
             </div>
           ))}
           <div ref={messagesEndRef} />
         </div>
 
         {/* Quick Replies */}
-        {selectedContact === 0 && (
+        {selectedContact === 'p2' && (
           <div className="px-6 py-3 bg-white border-t border-slate-200 flex-shrink-0">
             <div className="flex gap-2 flex-wrap">
               {['I love you! ❤️', 'How are you feeling?', 'Did you eat today?', 'Talk soon!'].map((reply, index) => (
@@ -217,22 +373,49 @@ const Chat: React.FC = () => {
 
         {/* Input Area */}
         <div className="p-4 bg-white border-t border-slate-200 flex-shrink-0">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              className="flex-1 px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              placeholder={`Message ${selectedContactData.name.split(' ')[0]}...`}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={handleKeyPress}
-            />
-            <button 
-              className="px-6 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors"
-              onClick={handleSendMessage}
-            >
-              Send
-            </button>
-          </div>
+          {isRecording ? (
+            <div className="flex items-center gap-3 p-4 bg-red-50 rounded-lg border border-red-200">
+              <div className="flex items-center gap-2 flex-1">
+                <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                <span className="text-red-600 font-medium">Recording...</span>
+                <span className="text-slate-600 text-sm ml-2">
+                  {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, '0')}
+                </span>
+              </div>
+              <button
+                onClick={stopRecording}
+                className="p-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
+              >
+                <StopCircle className="w-5 h-5" />
+                <span className="font-medium">Stop</span>
+              </button>
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <button
+                onClick={startRecording}
+                className="p-2.5 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+                title="Record voice message"
+              >
+                <Mic className="w-5 h-5 text-slate-600" />
+              </button>
+              <input
+                type="text"
+                className="flex-1 px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                placeholder={`Message ${selectedContactData.name.split(' ')[0]}...`}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyPress={handleKeyPress}
+              />
+              <button 
+                className="px-6 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={handleSendMessage}
+                disabled={!inputValue.trim()}
+              >
+                Send
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

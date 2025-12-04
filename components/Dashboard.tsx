@@ -3,12 +3,14 @@ import { TrendingUp, TrendingDown, Minus, Clock, AlertOctagon, Brain } from 'luc
 import { Patient, DailyMetric } from '../types';
 import { ReactionTimeChart, MemoryChart, ErrorCountChart } from './Charts';
 import { AIInsight } from './AIInsight';
+import { PatientProfile } from './PatientProfile';
 
 interface DashboardProps {
   patient: Patient;
+  onOpenChat: (patientId: string) => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ patient }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ patient, onOpenChat }) => {
   
   // Calculate summary stats
   const stats = useMemo(() => {
@@ -54,9 +56,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ patient }) => {
   return (
     <div className="space-y-6">
       
-      {/* Top Section: AI Insights */}
-      <section>
-        <AIInsight patient={patient} />
+      {/* Top Section: Profile and AI Insights */}
+      <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Patient Profile - Left side */}
+        <div className="lg:col-span-1">
+          <PatientProfile patient={patient} onOpenChat={onOpenChat} />
+        </div>
+        
+        {/* AI Insights - Right side */}
+        <div className="lg:col-span-2">
+          <AIInsight patient={patient} />
+        </div>
       </section>
 
       {/* KPI Grid */}

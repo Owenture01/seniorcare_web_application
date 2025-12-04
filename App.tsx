@@ -11,13 +11,19 @@ const App: React.FC = () => {
   // Default to the first patient
   const [selectedPatient, setSelectedPatient] = useState<Patient>(MOCK_PATIENTS[0]);
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
+  const [selectedChatContact, setSelectedChatContact] = useState<string>(MOCK_PATIENTS[0].id);
+
+  const handleOpenChat = (patientId: string) => {
+    setSelectedChatContact(patientId);
+    setCurrentPage('chat');
+  };
 
   const renderPage = () => {
     switch (currentPage) {
       case 'dashboard':
-        return <Dashboard patient={selectedPatient} />;
+        return <Dashboard patient={selectedPatient} onOpenChat={handleOpenChat} />;
       case 'chat':
-        return <Chat />;
+        return <Chat initialContactId={selectedChatContact} />;
       case 'care-team':
         return <div className="text-center py-12"><h2 className="text-2xl font-bold text-slate-700">Care Team - Coming Soon</h2></div>;
       case 'settings':
