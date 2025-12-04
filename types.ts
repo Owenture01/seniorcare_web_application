@@ -1,3 +1,9 @@
+export interface Activity {
+  name: string;
+  timeSpent: number; // in minutes
+  percentage: number; // 0-100
+}
+
 export interface DailyMetric {
   date: string;
   reactionTime: number; // in milliseconds
@@ -5,6 +11,7 @@ export interface DailyMetric {
   memoryScore: number; // 0-100
   moodScore: number; // 1-10
   screenTime?: number; // in minutes
+  activities?: Activity[]; // today's activities
 }
 
 export interface ChatMessage {
@@ -35,6 +42,7 @@ export interface Patient {
   messages: ChatMessage[];
   lastMessage?: string;
   alerts?: Alert[];
+  todayActivities?: Activity[]; // today's activities summary
 }
 
 export interface InsightState {

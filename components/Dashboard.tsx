@@ -6,6 +6,7 @@ import { AIInsight } from './AIInsight';
 import { PatientProfile } from './PatientProfile';
 import { Alerts } from './Alerts';
 import { ScreenTime } from './ScreenTime';
+import { Activity } from './Activity';
 
 interface DashboardProps {
   patient: Patient;
@@ -68,8 +69,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ patient, onOpenChat }) => 
         {/* Right side - AI Insights and Alerts stacked */}
         <div className="lg:col-span-2 space-y-3 h-full">
           <AIInsight patient={patient} />
-          <Alerts alerts={patient.alerts || []} />
-          <ScreenTime data={patient.history} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <Alerts alerts={patient.alerts || []} />
+            <Activity activities={patient.todayActivities || []} />
+          </div>
+          {/* <ScreenTime data={patient.history} /> */}
         </div>
       </section>
 
@@ -137,10 +141,25 @@ export const Dashboard: React.FC<DashboardProps> = ({ patient, onOpenChat }) => 
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         {/* Main Chart: Reaction Time Longitudinal */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm lg:col-span-2">
+        {/* <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm lg:col-span-2">
+          <ScreenTime data={patient.history} />
+        </div> */}
+
+        {/* Main Chart: Reaction Time Longitudinal */}
+        {/* <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm lg:col-span-2">
           <div className="mb-6">
             <h3 className="text-lg font-bold text-slate-800">Reaction Speed Trend</h3>
             <p className="text-sm text-slate-500">Longitudinal performance over the last 30 days. Lower is better.</p>
+          </div>
+          <ReactionTimeChart data={[...patient.history].reverse()} />
+        </div> */}
+
+        <ScreenTime data={patient.history} />
+
+        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+          <div className="mb-6">
+             <h3 className="text-lg font-bold text-slate-800">Reaction Speed Trend</h3>
+             <p className="text-sm text-slate-500">Longitudinal performance over the last 30 days. Lower is better.</p>
           </div>
           <ReactionTimeChart data={[...patient.history].reverse()} />
         </div>
