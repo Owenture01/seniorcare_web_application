@@ -1,9 +1,32 @@
+export interface Activity {
+  name: string;
+  timeSpent: number; // in minutes
+  percentage: number; // 0-100
+}
+
 export interface DailyMetric {
   date: string;
   reactionTime: number; // in milliseconds
   errorCount: number; // count
   memoryScore: number; // 0-100
   moodScore: number; // 1-10
+  screenTime?: number; // in minutes
+  activities?: Activity[]; // today's activities
+}
+
+export interface ChatMessage {
+  type: 'sent' | 'received';
+  content: string;
+  time: string;
+  isVoice?: boolean;
+  duration?: number;
+}
+
+export interface Alert {
+  id: string;
+  severity: 'critical' | 'concerning' | 'info';
+  message: string;
+  time: string;
 }
 
 export interface ChatMessage {
@@ -25,7 +48,9 @@ export interface Patient {
   avatar: string; // Initials for chat
   history: DailyMetric[];
   messages: ChatMessage[];
-  lastMessage: string;
+  lastMessage?: string;
+  alerts?: Alert[];
+  todayActivities?: Activity[]; // today's activities summary
 }
 
 export interface InsightState {
