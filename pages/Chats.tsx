@@ -89,9 +89,15 @@ const VoiceMessage: React.FC<{
   );
 };
 
-const Chat: React.FC = () => {
+interface ChatProps {
+  initialContactId?: string;
+}
+
+const Chat: React.FC<ChatProps> = ({ initialContactId }) => {
   // Use patient IDs as keys instead of indices
-  const [selectedContact, setSelectedContact] = useState<string>(MOCK_PATIENTS[0].id);
+  const [selectedContact, setSelectedContact] = useState<string>(
+    initialContactId || MOCK_PATIENTS[0].id
+  );
   
   // Initialize messages from MOCK_PATIENTS data
   const initialMessages: MessagesState = {};
@@ -115,6 +121,13 @@ const Chat: React.FC = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages, selectedContact]);
+
+  // Update selected contact when initialContactId changes
+  useEffect(() => {
+    if (initialContactId) {
+      setSelectedContact(initialContactId);
+    }
+  }, [initialContactId]);
 
   const handleSendMessage = (): void => {
     if (inputValue.trim() === '') return;

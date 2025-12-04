@@ -7,9 +7,10 @@ import { PatientProfile } from './PatientProfile';
 
 interface DashboardProps {
   patient: Patient;
+  onOpenChat: (patientId: string) => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ patient }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ patient, onOpenChat }) => {
   
   // Calculate summary stats
   const stats = useMemo(() => {
@@ -59,7 +60,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ patient }) => {
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Patient Profile - Left side */}
         <div className="lg:col-span-1">
-          <PatientProfile patient={patient} />
+          <PatientProfile patient={patient} onOpenChat={onOpenChat} />
         </div>
         
         {/* AI Insights - Right side */}
