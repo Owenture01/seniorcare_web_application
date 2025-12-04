@@ -75,6 +75,13 @@ export const MOCK_PATIENTS: Patient[] = [
         message: 'Completed daily cognitive assessment successfully.',
         time: '10:30 AM'
       }
+    ],
+    todayActivities: [
+      { name: 'Connect 4', timeSpent: 23, percentage: 39 },
+      { name: 'Mahjong', timeSpent: 13, percentage: 22 },
+      { name: 'Matching Card', timeSpent: 10, percentage: 17 },
+      { name: 'Crossword Puzzle', timeSpent: 8, percentage: 14 },
+      { name: 'Logic Grid', timeSpent: 5, percentage: 8 }
     ]
   },
   {
@@ -108,6 +115,12 @@ export const MOCK_PATIENTS: Patient[] = [
         message: 'Medication reminder completed on time.',
         time: '8:00 AM'
       }
+    ],
+    todayActivities: [
+      { name: 'Memory Match', timeSpent: 18, percentage: 35 },
+      { name: 'Puzzle Builder', timeSpent: 15, percentage: 29 },
+      { name: 'Word Search', timeSpent: 10, percentage: 19 },
+      { name: 'Sudoku', timeSpent: 9, percentage: 17 }
     ]
   },
   {
@@ -145,6 +158,13 @@ export const MOCK_PATIENTS: Patient[] = [
         message: 'Physical therapy progress improving steadily.',
         time: '11:00 AM'
       }
+    ],
+    todayActivities: [
+      { name: 'Chess', timeSpent: 25, percentage: 42 },
+      { name: 'Card Games', timeSpent: 12, percentage: 20 },
+      { name: 'Brain Teasers', timeSpent: 11, percentage: 18 },
+      { name: 'Trivia Quiz', timeSpent: 8, percentage: 13 },
+      { name: 'Pattern Recognition', timeSpent: 4, percentage: 7 }
     ]
   }
 ];

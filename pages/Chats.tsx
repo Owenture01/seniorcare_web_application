@@ -194,13 +194,13 @@ const Chat: React.FC<ChatProps> = ({ initialContactId }) => {
         const audioUrl = URL.createObjectURL(audioBlob);
         
         // Send voice message
-        const duration = `${Math.floor(recordingTime / 60)}:${(recordingTime % 60).toString().padStart(2, '0')}`;
+        const durationFormatted = `${Math.floor(recordingTime / 60)}:${(recordingTime % 60).toString().padStart(2, '0')}`;
         const voiceMessage: ChatMessage = {
           type: 'sent',
           content: audioUrl,
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           isVoice: true,
-          duration: duration
+          duration: recordingTime
         };
 
         setMessages(prev => ({
@@ -337,7 +337,7 @@ const Chat: React.FC<ChatProps> = ({ initialContactId }) => {
                   {message.isVoice ? (
                     <VoiceMessage 
                       audioUrl={message.content} 
-                      duration={message.duration || '0:00'} 
+                      duration={`${Math.floor((message.duration || 0) / 60)}:${((message.duration || 0) % 60).toString().padStart(2, '0')}`} 
                       isSent={message.type === 'sent'}
                       avatar={selectedContactData.avatar}
                     />
