@@ -51,7 +51,7 @@ export const AIInsight: React.FC<AIInsightProps> = ({ patient }) => {
             </button>
         </div>
 
-        <div className="relative z-10 min-h-[120px]">
+        <div className="relative z-10 min-h-[120px] max-h-[180px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-indigo-300 scrollbar-track-indigo-100 hover:scrollbar-thumb-indigo-400">
             {loading ? (
                 <div className="space-y-3 animate-pulse">
                     <div className="h-4 bg-indigo-100 rounded w-3/4"></div>
