@@ -1,25 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Mic, StopCircle, Play, Pause } from 'lucide-react';
-
-interface Message {
-  type: 'sent' | 'received';
-  content: string;
-  time: string;
-  isVoice?: boolean;
-  duration?: string;
-}
-
-interface Contact {
-  id: number;
-  name: string;
-  role: string;
-  avatar: string;
-  status: 'online' | 'offline';
-  lastMessage: string;
-}
+import { MOCK_PATIENTS } from '../services/dataService';
+import { Patient, ChatMessage } from '../types';
 
 interface MessagesState {
-  [key: number]: Message[];
+  [key: string]: ChatMessage[];
 }
 
 // Voice Message Component with animated sound bars
@@ -105,21 +90,16 @@ const VoiceMessage: React.FC<{
 };
 
 const Chat: React.FC = () => {
-  const [selectedContact, setSelectedContact] = useState<number>(0);
-  const [messages, setMessages] = useState<MessagesState>({
-    0: [
-      { type: 'received', content: 'Good morning! I just finished my morning exercises.', time: '9:15 AM' },
-      { type: 'sent', content: 'That\'s wonderful, Mom! How are you feeling today?', time: '9:18 AM' },
-      { type: 'received', content: 'Feeling great! The weather is lovely today.', time: '9:20 AM' },
-      { type: 'sent', content: 'I\'m glad to hear that. Did you take your medication?', time: '9:22 AM' },
-      { type: 'received', content: 'Yes, I did! Sarah reminded me this morning.', time: '9:25 AM' }
-    ],
-    1: [
-      { type: 'received', content: 'Hi, just wanted to update you on your mother\'s progress.', time: 'Yesterday' },
-      { type: 'sent', content: 'Thank you! How did she do today?', time: 'Yesterday' },
-      { type: 'received', content: 'She did wonderfully! Completed all her exercises and was in great spirits.', time: 'Yesterday' }
-    ]
+  // Use patient IDs as keys instead of indices
+  const [selectedContact, setSelectedContact] = useState<string>(MOCK_PATIENTS[0].id);
+  
+  // Initialize messages from MOCK_PATIENTS data
+  const initialMessages: MessagesState = {};
+  MOCK_PATIENTS.forEach(patient => {
+    initialMessages[patient.id] = [...patient.messages];
   });
+  
+  const [messages, setMessages] = useState<MessagesState>(initialMessages);
   const [inputValue, setInputValue] = useState<string>('');
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [recordingTime, setRecordingTime] = useState<number>(0);
@@ -127,25 +107,6 @@ const Chat: React.FC = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  const contacts: Contact[] = [
-    {
-      id: 0,
-      name: 'Margaret Johnson',
-      role: 'Your Mother',
-      avatar: 'MJ',
-      status: 'online',
-      lastMessage: 'Yes, I did! Sarah reminded me this morning.'
-    },
-    {
-      id: 1,
-      name: 'Sarah Williams',
-      role: 'Care Assistant',
-      avatar: 'SW',
-      status: 'online',
-      lastMessage: 'She did wonderfully! Completed all...'
-    }
-  ];
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -158,7 +119,7 @@ const Chat: React.FC = () => {
   const handleSendMessage = (): void => {
     if (inputValue.trim() === '') return;
 
-    const newMessage: Message = {
+    const newMessage: ChatMessage = {
       type: 'sent',
       content: inputValue,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -170,8 +131,9 @@ const Chat: React.FC = () => {
     }));
     setInputValue('');
 
-    // Simulate response after a delay
-    if (selectedContact === 0) {
+    // Simulate response after a delay from the selected patient
+    const selectedPatient = MOCK_PATIENTS.find(p => p.id === selectedContact);
+    if (selectedPatient && selectedPatient.id === 'p2') { // Mom responds
       setTimeout(() => {
         const responses = [
           "That's nice to hear, dear! 💕",
@@ -181,7 +143,7 @@ const Chat: React.FC = () => {
           "That makes me smile!"
         ];
         const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-        const responseMessage: Message = {
+        const responseMessage: ChatMessage = {
           type: 'received',
           content: randomResponse,
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -220,7 +182,7 @@ const Chat: React.FC = () => {
         
         // Send voice message
         const duration = `${Math.floor(recordingTime / 60)}:${(recordingTime % 60).toString().padStart(2, '0')}`;
-        const voiceMessage: Message = {
+        const voiceMessage: ChatMessage = {
           type: 'sent',
           content: audioUrl,
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -273,7 +235,9 @@ const Chat: React.FC = () => {
     };
   }, [isRecording]);
 
-  const selectedContactData = contacts[selectedContact];
+  const selectedContactData = MOCK_PATIENTS.find(p => p.id === selectedContact);
+  
+  if (!selectedContactData) return null;
 
   return (
     <div className="flex h-[calc(100vh-12rem)] max-h-[800px] bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
@@ -283,22 +247,22 @@ const Chat: React.FC = () => {
           <h3 className="font-semibold text-slate-800">Contacts</h3>
         </div>
         <div className="flex-1 overflow-y-auto">
-          {contacts.map((contact) => (
+          {MOCK_PATIENTS.map((patient) => (
             <div
-              key={contact.id}
+              key={patient.id}
               className={`flex items-center p-4 cursor-pointer transition-colors border-b border-slate-100 hover:bg-slate-50 ${
-                selectedContact === contact.id ? 'bg-indigo-50 border-l-4 border-l-indigo-600' : ''
+                selectedContact === patient.id ? 'bg-indigo-50 border-l-4 border-l-indigo-600' : ''
               }`}
-              onClick={() => setSelectedContact(contact.id)}
+              onClick={() => setSelectedContact(patient.id)}
             >
               <div className="w-12 h-12 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-sm">
-                {contact.avatar}
+                {patient.avatar}
               </div>
               <div className="ml-3 flex-1 min-w-0">
-                <h4 className="font-medium text-slate-800 truncate">{contact.name}</h4>
-                <p className="text-sm text-slate-500 truncate">{contact.lastMessage}</p>
+                <h4 className="font-medium text-slate-800 truncate">{patient.name}</h4>
+                <p className="text-sm text-slate-500 truncate">{patient.lastMessage}</p>
               </div>
-              <div className={`w-2.5 h-2.5 rounded-full ${contact.status === 'online' ? 'bg-green-500' : 'bg-slate-300'}`}></div>
+              <div className={`w-2.5 h-2.5 rounded-full ${patient.status === 'online' ? 'bg-green-500' : 'bg-slate-300'}`}></div>
             </div>
           ))}
         </div>
@@ -378,7 +342,7 @@ const Chat: React.FC = () => {
         </div>
 
         {/* Quick Replies */}
-        {selectedContact === 0 && (
+        {selectedContact === 'p2' && (
           <div className="px-6 py-3 bg-white border-t border-slate-200 flex-shrink-0">
             <div className="flex gap-2 flex-wrap">
               {['I love you! ❤️', 'How are you feeling?', 'Did you eat today?', 'Talk soon!'].map((reply, index) => (
