@@ -11,7 +11,14 @@ export interface ChatMessage {
   content: string;
   time: string;
   isVoice?: boolean;
-  duration?: string;
+  duration?: number;
+}
+
+export interface Alert {
+  id: string;
+  severity: 'critical' | 'concerning' | 'info';
+  message: string;
+  time: string;
 }
 
 export interface Patient {
@@ -25,7 +32,8 @@ export interface Patient {
   avatar: string; // Initials for chat
   history: DailyMetric[];
   messages: ChatMessage[];
-  lastMessage: string;
+  lastMessage?: string;
+  alerts?: Alert[];
 }
 
 export interface InsightState {

@@ -4,6 +4,7 @@ import { Patient, DailyMetric } from '../types';
 import { ReactionTimeChart, MemoryChart, ErrorCountChart } from './Charts';
 import { AIInsight } from './AIInsight';
 import { PatientProfile } from './PatientProfile';
+import { Alerts } from './Alerts';
 
 interface DashboardProps {
   patient: Patient;
@@ -63,9 +64,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ patient, onOpenChat }) => 
           <PatientProfile patient={patient} onOpenChat={onOpenChat} />
         </div>
         
-        {/* AI Insights - Right side */}
-        <div className="lg:col-span-2">
+        {/* Right side - AI Insights and Alerts stacked */}
+        <div className="lg:col-span-2 space-y-3 h-full">
           <AIInsight patient={patient} />
+          <Alerts alerts={patient.alerts || []} />
         </div>
       </section>
 

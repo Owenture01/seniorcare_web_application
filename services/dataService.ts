@@ -66,6 +66,14 @@ export const MOCK_PATIENTS: Patient[] = [
       { type: 'received', content: 'Feeling good! The weather is nice.', time: '8:40 AM' },
       { type: 'sent', content: 'Did you take your morning medication?', time: '8:42 AM' },
       { type: 'received', content: 'Thanks for checking in! I\'m doing well today.', time: '8:45 AM' }
+    ],
+    alerts: [
+      {
+        id: 'a1',
+        severity: 'info',
+        message: 'Completed daily cognitive assessment successfully.',
+        time: '10:30 AM'
+      }
     ]
   },
   {
@@ -85,6 +93,20 @@ export const MOCK_PATIENTS: Patient[] = [
       { type: 'received', content: 'Feeling great! The weather is lovely today.', time: '9:20 AM' },
       { type: 'sent', content: 'I\'m glad to hear that. Did you take your medication?', time: '9:22 AM' },
       { type: 'received', content: 'Yes, I did! Sarah reminded me this morning.', time: '9:25 AM' }
+    ],
+    alerts: [
+      {
+        id: 'a2',
+        severity: 'concerning',
+        message: 'Detected a rise in reaction time this week.',
+        time: '9:00 AM'
+      },
+      {
+        id: 'a3',
+        severity: 'info',
+        message: 'Medication reminder completed on time.',
+        time: '8:00 AM'
+      }
     ]
   },
   {
@@ -102,6 +124,26 @@ export const MOCK_PATIENTS: Patient[] = [
       { type: 'received', content: 'Hi! Just completed my physical therapy session.', time: 'Yesterday' },
       { type: 'sent', content: 'That\'s excellent! How did it go?', time: 'Yesterday' },
       { type: 'received', content: 'The therapy is really helping. Thank you!', time: 'Yesterday' }
+    ],
+    alerts: [
+      {
+        id: 'a4',
+        severity: 'critical',
+        message: 'Detected unusual interaction with the system.',
+        time: '5:34 PM'
+      },
+      {
+        id: 'a5',
+        severity: 'concerning',
+        message: 'Missed scheduled therapy session reminder.',
+        time: '2:00 PM'
+      },
+      {
+        id: 'a6',
+        severity: 'info',
+        message: 'Physical therapy progress improving steadily.',
+        time: '11:00 AM'
+      }
     ]
   }
 ];
