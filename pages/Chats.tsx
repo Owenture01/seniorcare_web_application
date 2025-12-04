@@ -1,9 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Mic, StopCircle } from 'lucide-react';
 
 interface Message {
   type: 'sent' | 'received';
   content: string;
   time: string;
+  isVoice?: boolean;
+  duration?: string;
 }
 
 interface Contact {
@@ -36,7 +39,12 @@ const Chat: React.FC = () => {
     ]
   });
   const [inputValue, setInputValue] = useState<string>('');
+  const [isRecording, setIsRecording] = useState<boolean>(false);
+  const [recordingTime, setRecordingTime] = useState<number>(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const contacts: Contact[] = [
     {
@@ -110,6 +118,78 @@ const Chat: React.FC = () => {
       handleSendMessage();
     }
   };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const audioUrl = URL.createObjectURL(audioBlob);
+        
+        // Send voice message
+        const duration = `${Math.floor(recordingTime / 60)}:${(recordingTime % 60).toString().padStart(2, '0')}`;
+        const voiceMessage: Message = {
+          type: 'sent',
+          content: audioUrl,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          isVoice: true,
+          duration: duration
+        };
+
+        setMessages(prev => ({
+          ...prev,
+          [selectedContact]: [...(prev[selectedContact] || []), voiceMessage]
+        }));
+
+        // Clean up
+        stream.getTracks().forEach(track => track.stop());
+        setRecordingTime(0);
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+
+      // Start timer
+      recordingIntervalRef.current = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+      alert('Unable to access microphone. Please grant permission to record audio.');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      if (recordingIntervalRef.current) {
+        clearInterval(recordingIntervalRef.current);
+      }
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      // Cleanup on unmount
+      if (recordingIntervalRef.current) {
+        clearInterval(recordingIntervalRef.current);
+      }
+      if (mediaRecorderRef.current && isRecording) {
+        mediaRecorderRef.current.stop();
+      }
+    };
+  }, [isRecording]);
 
   const selectedContactData = contacts[selectedContact];
 
@@ -188,7 +268,17 @@ const Chat: React.FC = () => {
                     : 'bg-white text-slate-800 border border-slate-200 rounded-tl-sm'
                 }`}
               >
-                {message.content}
+                {message.isVoice ? (
+                  <div className="flex items-center gap-3">
+                    <Mic className="w-4 h-4" />
+                    <audio controls className="h-8">
+                      <source src={message.content} type="audio/webm" />
+                    </audio>
+                    <span className="text-xs">{message.duration}</span>
+                  </div>
+                ) : (
+                  message.content
+                )}
               </div>
               <span className="text-xs text-slate-400 mt-1 px-1">
                 {message.time}
@@ -217,22 +307,49 @@ const Chat: React.FC = () => {
 
         {/* Input Area */}
         <div className="p-4 bg-white border-t border-slate-200 flex-shrink-0">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              className="flex-1 px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              placeholder={`Message ${selectedContactData.name.split(' ')[0]}...`}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={handleKeyPress}
-            />
-            <button 
-              className="px-6 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors"
-              onClick={handleSendMessage}
-            >
-              Send
-            </button>
-          </div>
+          {isRecording ? (
+            <div className="flex items-center gap-3 p-4 bg-red-50 rounded-lg border border-red-200">
+              <div className="flex items-center gap-2 flex-1">
+                <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                <span className="text-red-600 font-medium">Recording...</span>
+                <span className="text-slate-600 text-sm ml-2">
+                  {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, '0')}
+                </span>
+              </div>
+              <button
+                onClick={stopRecording}
+                className="p-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
+              >
+                <StopCircle className="w-5 h-5" />
+                <span className="font-medium">Stop</span>
+              </button>
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <button
+                onClick={startRecording}
+                className="p-2.5 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+                title="Record voice message"
+              >
+                <Mic className="w-5 h-5 text-slate-600" />
+              </button>
+              <input
+                type="text"
+                className="flex-1 px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                placeholder={`Message ${selectedContactData.name.split(' ')[0]}...`}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyPress={handleKeyPress}
+              />
+              <button 
+                className="px-6 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={handleSendMessage}
+                disabled={!inputValue.trim()}
+              >
+                Send
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
