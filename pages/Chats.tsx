@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Mic, StopCircle } from 'lucide-react';
+import { Mic, StopCircle, Play, Pause } from 'lucide-react';
 
 interface Message {
   type: 'sent' | 'received';
@@ -21,6 +21,88 @@ interface Contact {
 interface MessagesState {
   [key: number]: Message[];
 }
+
+// Voice Message Component with animated sound bars
+const VoiceMessage: React.FC<{ 
+  audioUrl: string; 
+  duration: string; 
+  isSent: boolean;
+  avatar: string;
+}> = ({ audioUrl, duration, isSent, avatar }) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  const togglePlay = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      const handleEnded = () => setIsPlaying(false);
+      audio.addEventListener('ended', handleEnded);
+      return () => audio.removeEventListener('ended', handleEnded);
+    }
+  }, []);
+
+  // Generate animated sound bars
+  const bars = Array.from({ length: 25 }, (_, i) => {
+    const height = Math.random() * 60 + 40; // Random height between 40-100%
+    const animationDelay = Math.random() * 0.5; // Random delay
+    return (
+      <div
+        key={i}
+        className={`w-1 rounded-full transition-all ${
+          isSent ? 'bg-white' : 'bg-indigo-600'
+        }`}
+        style={{
+          height: isPlaying ? `${height}%` : '30%',
+          animation: isPlaying ? `pulse 0.8s ease-in-out infinite` : 'none',
+          animationDelay: `${animationDelay}s`,
+        }}
+      />
+    );
+  });
+
+  return (
+    <div className="flex items-center gap-3">
+      <button
+        onClick={togglePlay}
+        className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${
+          isSent 
+            ? 'bg-white/20 hover:bg-white/30 text-white' 
+            : 'bg-indigo-100 hover:bg-indigo-200 text-indigo-600'
+        }`}
+      >
+        {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
+      </button>
+      
+      <div className="flex items-center gap-1 h-10 flex-1 min-w-0">
+        {bars}
+      </div>
+      
+      <span className={`text-xs font-medium flex-shrink-0 ${isSent ? 'text-white/90' : 'text-slate-500'}`}>
+        {duration}
+      </span>
+      
+      <audio ref={audioRef} src={audioUrl} />
+      
+      <style jsx>{`
+        @keyframes pulse {
+          0%, 100% { transform: scaleY(1); }
+          50% { transform: scaleY(1.5); }
+        }
+      `}</style>
+    </div>
+  );
+};
 
 const Chat: React.FC = () => {
   const [selectedContact, setSelectedContact] = useState<number>(0);
@@ -259,30 +341,37 @@ const Chat: React.FC = () => {
           {(messages[selectedContact] || []).map((message, index) => (
             <div 
               key={index} 
-              className={`flex flex-col mb-4 ${message.type === 'sent' ? 'items-end' : 'items-start'}`}
+              className={`flex gap-2 mb-4 ${message.type === 'sent' ? 'flex-row-reverse' : 'flex-row'}`}
             >
-              <div 
-                className={`max-w-md px-4 py-2.5 rounded-2xl ${
-                  message.type === 'sent' 
-                    ? 'bg-indigo-600 text-white rounded-tr-sm' 
-                    : 'bg-white text-slate-800 border border-slate-200 rounded-tl-sm'
-                }`}
-              >
-                {message.isVoice ? (
-                  <div className="flex items-center gap-3">
-                    <Mic className="w-4 h-4" />
-                    <audio controls className="h-8">
-                      <source src={message.content} type="audio/webm" />
-                    </audio>
-                    <span className="text-xs">{message.duration}</span>
-                  </div>
-                ) : (
-                  message.content
-                )}
+              {/* Avatar */}
+              <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-xs flex-shrink-0">
+                {message.type === 'sent' ? 'JS' : selectedContactData.avatar}
               </div>
-              <span className="text-xs text-slate-400 mt-1 px-1">
-                {message.time}
-              </span>
+              
+              {/* Message Content */}
+              <div className={`flex flex-col ${message.type === 'sent' ? 'items-end' : 'items-start'}`}>
+                <div 
+                  className={`${message.isVoice ? 'min-w-[300px]' : 'max-w-md'} px-4 py-2.5 rounded-2xl ${
+                    message.type === 'sent' 
+                      ? 'bg-indigo-600 text-white rounded-tr-sm' 
+                      : 'bg-white text-slate-800 border border-slate-200 rounded-tl-sm'
+                  }`}
+                >
+                  {message.isVoice ? (
+                    <VoiceMessage 
+                      audioUrl={message.content} 
+                      duration={message.duration || '0:00'} 
+                      isSent={message.type === 'sent'}
+                      avatar={selectedContactData.avatar}
+                    />
+                  ) : (
+                    message.content
+                  )}
+                </div>
+                <span className="text-xs text-slate-400 mt-1 px-1">
+                  {message.time}
+                </span>
+              </div>
             </div>
           ))}
           <div ref={messagesEndRef} />
