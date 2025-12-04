@@ -41,11 +41,11 @@ export const Alerts: React.FC<AlertsProps> = ({ alerts }) => {
 
   return (
     <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-      <div className="mb-10">
+      <div className="mb-4">
         <h3 className="text-lg font-bold text-slate-800">Alerts</h3>
       </div>
       
-      <div className="space-y-3 max-h-[280px] overflow-y-auto">
+      <div className="space-y-3 max-h-[280px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100 hover:scrollbar-thumb-slate-400">
         {alerts.length === 0 ? (
           <div className="text-center py-4 text-slate-400">
             <AlertCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />

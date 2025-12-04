@@ -5,6 +5,7 @@ import { ReactionTimeChart, MemoryChart, ErrorCountChart } from './Charts';
 import { AIInsight } from './AIInsight';
 import { PatientProfile } from './PatientProfile';
 import { Alerts } from './Alerts';
+import { ScreenTime } from './ScreenTime';
 
 interface DashboardProps {
   patient: Patient;
@@ -68,6 +69,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ patient, onOpenChat }) => 
         <div className="lg:col-span-2 space-y-3 h-full">
           <AIInsight patient={patient} />
           <Alerts alerts={patient.alerts || []} />
+          <ScreenTime data={patient.history} />
         </div>
       </section>
 

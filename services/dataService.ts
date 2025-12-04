@@ -42,7 +42,8 @@ const generateHistory = (days: number, trend: 'stable' | 'declining' | 'improvin
       reactionTime: Math.round(currentReaction),
       errorCount: Math.round(currentErrors + (Math.random() * 2)),
       memoryScore: Math.round(currentMemory),
-      moodScore: Math.round(Math.random() * 4 + 6) // Mostly happy
+      moodScore: Math.round(Math.random() * 4 + 6), // Mostly happy
+      screenTime: Math.floor(Math.random() * 40 + 30) // 30-70 minutes per day
     });
   }
   return history;

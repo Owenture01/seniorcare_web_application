@@ -4,6 +4,7 @@ export interface DailyMetric {
   errorCount: number; // count
   memoryScore: number; // 0-100
   moodScore: number; // 1-10
+  screenTime?: number; // in minutes
 }
 
 export interface ChatMessage {
