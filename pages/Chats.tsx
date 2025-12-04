@@ -114,9 +114,9 @@ const Chat: React.FC = () => {
   const selectedContactData = contacts[selectedContact];
 
   return (
-    <div className="flex h-full bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+    <div className="flex h-[calc(100vh-12rem)] max-h-[800px] bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
       {/* Contacts List */}
-      <div className="w-80 border-r border-slate-200 flex flex-col">
+      <div className="w-80 border-r border-slate-200 flex flex-col h-full">
         <div className="p-4 border-b border-slate-200 bg-slate-50">
           <h3 className="font-semibold text-slate-800">Contacts</h3>
         </div>
@@ -143,9 +143,9 @@ const Chat: React.FC = () => {
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col h-full min-h-0">
         {/* Chat Header */}
-        <div className="p-4 border-b border-slate-200 bg-white flex items-center justify-between">
+        <div className="p-4 border-b border-slate-200 bg-white flex items-center justify-between flex-shrink-0">
           <div className="flex items-center">
             <div className="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-sm">
               {selectedContactData.avatar}
@@ -168,7 +168,7 @@ const Chat: React.FC = () => {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-6 bg-slate-50">
+        <div className="flex-1 overflow-y-auto p-6 bg-slate-50 min-h-0">
           {/* Date separator */}
           <div className="text-center my-6">
             <span className="bg-white text-slate-500 text-xs px-4 py-1.5 rounded-full border border-slate-200">
@@ -200,7 +200,7 @@ const Chat: React.FC = () => {
 
         {/* Quick Replies */}
         {selectedContact === 0 && (
-          <div className="px-6 py-3 bg-white border-t border-slate-200">
+          <div className="px-6 py-3 bg-white border-t border-slate-200 flex-shrink-0">
             <div className="flex gap-2 flex-wrap">
               {['I love you! ❤️', 'How are you feeling?', 'Did you eat today?', 'Talk soon!'].map((reply, index) => (
                 <button 
@@ -216,7 +216,7 @@ const Chat: React.FC = () => {
         )}
 
         {/* Input Area */}
-        <div className="p-4 bg-white border-t border-slate-200">
+        <div className="p-4 bg-white border-t border-slate-200 flex-shrink-0">
           <div className="flex gap-2">
             <input
               type="text"
