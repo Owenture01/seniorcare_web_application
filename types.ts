@@ -29,6 +29,14 @@ export interface Alert {
   time: string;
 }
 
+export interface ChatMessage {
+  type: 'sent' | 'received';
+  content: string;
+  time: string;
+  isVoice?: boolean;
+  duration?: string;
+}
+
 export interface Patient {
   id: string;
   name: string;
