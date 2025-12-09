@@ -1,4 +1,41 @@
 import { Patient, DailyMetric } from '../types';
+import dadImage from '../resources/images/dad.png';
+import momImage from '../resources/images/mom.png';
+import uncleImage from '../resources/images/uncle_toh.png';
+
+export interface CaregiverProfile {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: string;
+  organization: string;
+  specialization: string;
+  yearsOfExperience: number;
+  emergencyContact: string;
+  notifications: {
+    email: boolean;
+    sms: boolean;
+    push: boolean;
+  };
+}
+
+export const CAREGIVER_PROFILE: CaregiverProfile = {
+  id: 'c1',
+  name: 'Li Wei',
+  email: 'li.wei@seniorcare.com',
+  phone: '+65 9123 4567',
+  role: 'Senior Caregiver',
+  organization: 'SeniorCare+ Singapore',
+  specialization: 'Dementia & Cognitive Care',
+  yearsOfExperience: 8,
+  emergencyContact: '+65 9876 5432',
+  notifications: {
+    email: true,
+    sms: true,
+    push: true
+  }
+};
 
 // Helper to generate dates
 const getPastDate = (daysAgo: number): string => {
@@ -58,8 +95,7 @@ export const MOCK_PATIENTS: Patient[] = [
     status: 'online',
     avatar: 'DA',
     condition: 'Mild Cognitive Impairment',
-    // avatarUrl: 'https://picsum.photos/id/64/200/200',
-    avatarUrl: '../resources/images/dad.png',
+    avatarUrl: dadImage,
     history: generateHistory(30, 'stable'),
     lastMessage: 'Thanks for checking in! I\'m doing well today.',
     messages: [
@@ -93,8 +129,7 @@ export const MOCK_PATIENTS: Patient[] = [
     status: 'online',
     avatar: 'MO',
     condition: 'Early Stage Alzheimer\'s',
-    // avatarUrl: 'https://picsum.photos/id/91/200/200',
-    avatarUrl: '../resources/images/mom.png',
+    avatarUrl: momImage,
     history: generateHistory(30, 'declining'),
     lastMessage: 'Yes, I did! Sarah reminded me this morning.',
     messages: [
@@ -133,8 +168,7 @@ export const MOCK_PATIENTS: Patient[] = [
     avatar: 'UT',
     age: 74,
     condition: 'Post-Stroke Recovery',
-    // avatarUrl: 'https://picsum.photos/id/65/200/200',
-    avatarUrl: '../resources/images/uncle_toh.png',
+    avatarUrl: uncleImage,
     history: generateHistory(30, 'improving'),
     lastMessage: 'The therapy is really helping. Thank you!',
     messages: [

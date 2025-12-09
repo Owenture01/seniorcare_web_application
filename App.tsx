@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Layout } from './components/Layout';
-import { Dashboard } from './components/Dashboard';
+import { Dashboard } from './pages/Dashboard';
+import { Setting } from './pages/Setting';   
 import Chat from './pages/Chats';
 import { MOCK_PATIENTS } from './services/dataService';
 import { Patient } from './types';
@@ -24,10 +25,11 @@ const App: React.FC = () => {
         return <Dashboard patient={selectedPatient} onOpenChat={handleOpenChat} />;
       case 'chat':
         return <Chat initialContactId={selectedChatContact} />;
-      case 'care-team':
-        return <div className="text-center py-12"><h2 className="text-2xl font-bold text-slate-700">Care Team - Coming Soon</h2></div>;
+      // case 'care-team':
+      //   return <div className="text-center py-12"><h2 className="text-2xl font-bold text-slate-700">Care Team - Coming Soon</h2></div>;
       case 'settings':
-        return <div className="text-center py-12"><h2 className="text-2xl font-bold text-slate-700">Settings - Coming Soon</h2></div>;
+        // return <div className="text-center py-12"><h2 className="text-2xl font-bold text-slate-700">Settings - Coming Soon</h2></div>;
+        return <Setting />;
       default:
         return <Dashboard patient={selectedPatient} />;
     }
