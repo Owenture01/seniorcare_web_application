@@ -119,14 +119,14 @@ export const Layout: React.FC<LayoutProps> = ({ children, selectedPatient, onSel
           </div>
         </div>
         
-        <div className="absolute bottom-0 w-full p-4 border-t border-slate-100">
+        {/* <div className="absolute bottom-0 w-full p-4 border-t border-slate-100">
           <div className="flex items-center p-2 rounded-lg bg-indigo-600 text-white">
             <div className="flex-1 min-w-0">
                <p className="text-sm font-medium">Premium Plan</p>
                <p className="text-xs text-indigo-200">AI Analysis Active</p>
             </div>
           </div>
-        </div>
+        </div> */}
       </aside>
 
       {/* Main Content */}

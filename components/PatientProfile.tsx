@@ -4,6 +4,7 @@ import { Patient } from '../types';
 interface PatientProfileProps {
   patient: Patient;
   onOpenChat: (patientId: string) => void;
+  onStartCall: (patient: Patient) => void;
 }
 
 interface MoodData {
@@ -24,7 +25,7 @@ const moodMap: { [key: number]: MoodData } = {
   8: { emoji: '😌', label: 'Calm', description: 'Relaxed and peaceful', color: 'bg-blue-100 text-blue-800 border-blue-200' },
 };
 
-export const PatientProfile: React.FC<PatientProfileProps> = ({ patient, onOpenChat }) => {
+export const PatientProfile: React.FC<PatientProfileProps> = ({ patient, onOpenChat, onStartCall }) => {
   // Get the most recent mood score from history
   const latestMood = patient.history && patient.history.length > 0 
     ? patient.history[patient.history.length - 1].moodScore 
@@ -80,7 +81,10 @@ export const PatientProfile: React.FC<PatientProfileProps> = ({ patient, onOpenC
 
         {/* Action Buttons */}
         <div className="space-y-4">
-          <button className="w-full py-4 bg-indigo-600 text-white font-semibold text-base rounded-xl hover:bg-indigo-700 transition-colors">
+          <button 
+            onClick={() => onStartCall(patient)}
+            className="w-full py-4 bg-indigo-600 text-white font-semibold text-base rounded-xl hover:bg-indigo-700 transition-colors"
+          >
             Call Now
           </button>
           <button 

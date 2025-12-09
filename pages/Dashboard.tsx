@@ -1,19 +1,20 @@
 import React, { useMemo } from 'react';
 import { TrendingUp, TrendingDown, Minus, Clock, AlertOctagon, Brain } from 'lucide-react';
 import { Patient, DailyMetric } from '../types';
-import { ReactionTimeChart, MemoryChart, ErrorCountChart } from './Charts';
-import { AIInsight } from './AIInsight';
-import { PatientProfile } from './PatientProfile';
-import { Alerts } from './Alerts';
-import { ScreenTime } from './ScreenTime';
-import { Activity } from './Activity';
+import { ReactionTimeChart, MemoryChart, ErrorCountChart } from '../components/Charts';
+import { AIInsight } from '../components/AIInsight';
+import { PatientProfile } from '../components/PatientProfile';
+import { Alerts } from '../components/Alerts';
+import { ScreenTime } from '../components/ScreenTime';
+import { Activity } from '../components/Activity';
 
 interface DashboardProps {
   patient: Patient;
   onOpenChat: (patientId: string) => void;
+  onStartCall: (patient: Patient) => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ patient, onOpenChat }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ patient, onOpenChat, onStartCall }) => {
   
   // Calculate summary stats
   const stats = useMemo(() => {
@@ -63,7 +64,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ patient, onOpenChat }) => 
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Patient Profile - Left side */}
         <div className="lg:col-span-1">
-          <PatientProfile patient={patient} onOpenChat={onOpenChat} />
+          <PatientProfile patient={patient} onOpenChat={onOpenChat} onStartCall={onStartCall} />
         </div>
         
         {/* Right side - AI Insights and Alerts stacked */}
