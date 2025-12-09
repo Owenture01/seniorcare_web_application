@@ -58,7 +58,8 @@ export const MOCK_PATIENTS: Patient[] = [
     status: 'online',
     avatar: 'DA',
     condition: 'Mild Cognitive Impairment',
-    avatarUrl: 'https://picsum.photos/id/64/200/200',
+    // avatarUrl: 'https://picsum.photos/id/64/200/200',
+    avatarUrl: '../resources/images/dad.png',
     history: generateHistory(30, 'stable'),
     lastMessage: 'Thanks for checking in! I\'m doing well today.',
     messages: [
@@ -92,7 +93,8 @@ export const MOCK_PATIENTS: Patient[] = [
     status: 'online',
     avatar: 'MO',
     condition: 'Early Stage Alzheimer\'s',
-    avatarUrl: 'https://picsum.photos/id/91/200/200',
+    // avatarUrl: 'https://picsum.photos/id/91/200/200',
+    avatarUrl: '../resources/images/mom.png',
     history: generateHistory(30, 'declining'),
     lastMessage: 'Yes, I did! Sarah reminded me this morning.',
     messages: [
@@ -131,7 +133,8 @@ export const MOCK_PATIENTS: Patient[] = [
     avatar: 'UT',
     age: 74,
     condition: 'Post-Stroke Recovery',
-    avatarUrl: 'https://picsum.photos/id/65/200/200',
+    // avatarUrl: 'https://picsum.photos/id/65/200/200',
+    avatarUrl: '../resources/images/uncle_toh.png',
     history: generateHistory(30, 'improving'),
     lastMessage: 'The therapy is really helping. Thank you!',
     messages: [
