@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
 import { TrendingUp, TrendingDown, Minus, Clock, AlertOctagon, Brain } from 'lucide-react';
 import { Patient, DailyMetric } from '../types';
-import { ReactionTimeChart, MemoryChart, ErrorCountChart } from '../components/Charts';
-import { AIInsight } from '../components/AIInsight';
-import { PatientProfile } from '../components/PatientProfile';
-import { Alerts } from '../components/Alerts';
-import { ScreenTime } from '../components/ScreenTime';
-import { Activity } from '../components/Activity';
+import { ReactionTimeChart, MemoryChart, ErrorCountChart } from './Charts';
+import { AIInsight } from './AIInsight';
+import { PatientProfile } from './PatientProfile';
+import { Alerts } from './Alerts';
+import { ScreenTime } from './ScreenTime';
+import { Activity } from './Activity';
 
 interface DashboardProps {
   patient: Patient;
