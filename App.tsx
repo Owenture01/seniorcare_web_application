@@ -38,13 +38,19 @@ const App: React.FC = () => {
         return <Dashboard patient={selectedPatient} onOpenChat={handleOpenChat} onStartCall={handleStartCall} />;
       case 'chat':
         return <Chat initialContactId={selectedChatContact} />;
-      // case 'care-team':
-      //   return <div className="text-center py-12"><h2 className="text-2xl font-bold text-slate-700">Care Team - Coming Soon</h2></div>;
+      case 'care-team':
+        return (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center py-12 bg-white rounded-xl border border-slate-200 shadow-sm px-12">
+              <h2 className="text-3xl font-bold text-slate-700 mb-3">Care Team</h2>
+              <p className="text-slate-500">Coming Soon</p>
+            </div>
+          </div>
+        );
       case 'settings':
-        // return <div className="text-center py-12"><h2 className="text-2xl font-bold text-slate-700">Settings - Coming Soon</h2></div>;
         return <Setting />;
       default:
-        return <Dashboard patient={selectedPatient} />;
+        return <Dashboard patient={selectedPatient} onOpenChat={handleOpenChat} onStartCall={handleStartCall} />;
     }
   };
 
