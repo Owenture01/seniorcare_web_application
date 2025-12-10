@@ -1,20 +1,59 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { LayoutDashboard, Users, Activity, Settings, Bell, Menu, X, MessageCircle } from 'lucide-react';
 import { MOCK_PATIENTS } from '../services/dataService';
 import { Patient } from '../types';
 
-type Page = 'dashboard' | 'chat' | 'settings';
-
 interface LayoutProps {
   children: React.ReactNode;
-  selectedPatient: Patient;
-  onSelectPatient: (p: Patient) => void;
-  currentPage: Page;
-  onNavigate: (page: Page) => void;
 }
 
-export const Layout: React.FC<LayoutProps> = ({ children, selectedPatient, onSelectPatient, currentPage, onNavigate }) => {
+export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { patientId } = useParams<{ patientId: string }>();
+
+  // Determine current page from URL
+  const currentPage = useMemo(() => {
+    if (location.pathname.startsWith('/dashboard')) return 'dashboard';
+    if (location.pathname.startsWith('/chat')) return 'chat';
+    if (location.pathname.startsWith('/settings')) return 'settings';
+    return 'dashboard';
+  }, [location.pathname]);
+
+  // Find current patient from URL
+  const selectedPatient = useMemo(() => {
+    if (patientId) {
+      const found = MOCK_PATIENTS.find(
+        p => p.id === patientId || p.name.toLowerCase().replace(/\s+/g, '-') === patientId.toLowerCase()
+      );
+      return found || MOCK_PATIENTS[0];
+    }
+    return MOCK_PATIENTS[0];
+  }, [patientId]);
+
+  const handleSelectPatient = (patient: Patient) => {
+    const patientSlug = patient.name.toLowerCase().replace(/\s+/g, '-');
+    if (currentPage === 'chat') {
+      navigate(`/chat/${patientSlug}`);
+    } else if (currentPage === 'dashboard') {
+      navigate(`/dashboard/${patientSlug}`);
+    }
+    setIsSidebarOpen(false);
+  };
+
+  const handleNavigate = (page: string) => {
+    const patientSlug = selectedPatient.name.toLowerCase().replace(/\s+/g, '-');
+    if (page === 'dashboard') {
+      navigate(`/dashboard/${patientSlug}`);
+    } else if (page === 'chat') {
+      navigate(`/chat/${patientSlug}`);
+    } else if (page === 'settings') {
+      navigate('/settings');
+    }
+    setIsSidebarOpen(false);
+  };
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
@@ -51,10 +90,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, selectedPatient, onSel
               {MOCK_PATIENTS.map(patient => (
                 <button
                   key={patient.id}
-                  onClick={() => {
-                    onSelectPatient(patient);
-                    setIsSidebarOpen(false);
-                  }}
+                  onClick={() => handleSelectPatient(patient)}
                   className={`flex items-center w-full px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                     selectedPatient.id === patient.id
                       ? 'bg-indigo-50 text-indigo-700'
@@ -80,7 +116,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, selectedPatient, onSel
             </h3>
             <nav className="space-y-1">
               <button 
-                onClick={() => { onNavigate('dashboard'); setIsSidebarOpen(false); }}
+                onClick={() => handleNavigate('dashboard')}
                 className={`flex items-center w-full px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                   currentPage === 'dashboard' ? 'text-slate-700 bg-slate-100' : 'text-slate-600 hover:bg-slate-50'
                 }`}
@@ -89,7 +125,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, selectedPatient, onSel
                 Dashboard
               </button>
               <button 
-                onClick={() => { onNavigate('chat'); setIsSidebarOpen(false); }}
+                onClick={() => handleNavigate('chat')}
                 className={`flex items-center w-full px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                   currentPage === 'chat' ? 'text-slate-700 bg-slate-100' : 'text-slate-600 hover:bg-slate-50'
                 }`}
@@ -98,7 +134,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, selectedPatient, onSel
                 Chats
               </button>
               <button 
-                onClick={() => { onNavigate('settings'); setIsSidebarOpen(false); }}
+                onClick={() => handleNavigate('settings')}
                 className={`flex items-center w-full px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                   currentPage === 'settings' ? 'text-slate-700 bg-slate-100' : 'text-slate-600 hover:bg-slate-50'
                 }`}

@@ -40,9 +40,37 @@ SeniorCare+ is a comprehensive web application designed to enhance caregiver sup
 - **React 19.2.0** - UI framework
 - **TypeScript 5.8.2** - Type safety
 - **Vite 6.2.0** - Build tool
+- **React Router DOM** - Client-side routing
 - **Recharts 3.5.0** - Data visualization
 - **Google Gemini AI** - Cognitive assessments
 - **Lucide React** - Icon library
+
+---
+
+## URL Routes
+
+The application uses React Router for navigation with the following URL structure:
+
+### Dashboard Routes
+- `/` - Redirects to first patient's dashboard
+- `/dashboard` - Redirects to first patient's dashboard
+- `/dashboard/:patientId` - Patient-specific dashboard
+  - Example: `/dashboard/dad`
+  - Example: `/dashboard/mom`
+  - Example: `/dashboard/uncle-toh`
+
+### Chat Routes
+- `/chat` - Redirects to first patient's chat
+- `/chat/:patientId` - Patient-specific chat
+  - Example: `/chat/dad`
+  - Example: `/chat/mom`
+  - Example: `/chat/uncle-toh`
+
+### Other Routes
+- `/settings` - Caregiver settings page
+- All invalid routes redirect to the first patient's dashboard
+
+**Note:** Patient IDs in URLs are automatically converted from names (e.g., "Uncle Toh" → "uncle-toh")
 
 ---
 
