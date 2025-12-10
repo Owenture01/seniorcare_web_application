@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { Patient } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
 
 export const generateCognitiveReport = async (patient: Patient): Promise<string> => {
   try {

@@ -3,7 +3,7 @@ import { LayoutDashboard, Users, Activity, Settings, Bell, Menu, X, MessageCircl
 import { MOCK_PATIENTS } from '../services/dataService';
 import { Patient } from '../types';
 
-type Page = 'dashboard' | 'chat' | 'care-team' | 'settings';
+type Page = 'dashboard' | 'chat' | 'settings';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -96,15 +96,6 @@ export const Layout: React.FC<LayoutProps> = ({ children, selectedPatient, onSel
               >
                 <MessageCircle className={`w-5 h-5 mr-3 ${currentPage === 'chat' ? 'text-slate-500' : 'text-slate-400'}`} />
                 Chats
-              </button>
-              <button 
-                onClick={() => { onNavigate('care-team'); setIsSidebarOpen(false); }}
-                className={`flex items-center w-full px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  currentPage === 'care-team' ? 'text-slate-700 bg-slate-100' : 'text-slate-600 hover:bg-slate-50'
-                }`}
-              >
-                <Users className={`w-5 h-5 mr-3 ${currentPage === 'care-team' ? 'text-slate-500' : 'text-slate-400'}`} />
-                Care Team
               </button>
               <button 
                 onClick={() => { onNavigate('settings'); setIsSidebarOpen(false); }}

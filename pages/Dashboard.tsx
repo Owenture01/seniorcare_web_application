@@ -7,6 +7,7 @@ import { PatientProfile } from '../components/PatientProfile';
 import { Alerts } from '../components/Alerts';
 import { ScreenTime } from '../components/ScreenTime';
 import { Activity } from '../components/Activity';
+import { ChatBot } from '../components/ChatBot';
 
 interface DashboardProps {
   patient: Patient;
@@ -184,6 +185,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ patient, onOpenChat, onSta
         </div>
 
       </section>
+
+      {/* AI ChatBot */}
+      <ChatBot patient={patient} />
     </div>
   );
 };
