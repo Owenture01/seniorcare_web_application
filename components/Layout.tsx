@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { LayoutDashboard, Users, Activity, Settings, Bell, Menu, X, MessageCircle } from 'lucide-react';
+import { LayoutDashboard, Users, Activity, Settings, Bell, Menu, X, MessageCircle, LogOut } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 import { MOCK_PATIENTS } from '../services/dataService';
 import { Patient } from '../types';
 
@@ -13,6 +14,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { patientId } = useParams<{ patientId: string }>();
+  const { logout, user } = useAuth();
 
   // Determine current page from URL
   const currentPage = useMemo(() => {
@@ -146,14 +148,30 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </div>
         
-        {/* <div className="absolute bottom-0 w-full p-4 border-t border-slate-100">
-          <div className="flex items-center p-2 rounded-lg bg-indigo-600 text-white">
-            <div className="flex-1 min-w-0">
-               <p className="text-sm font-medium">Premium Plan</p>
-               <p className="text-xs text-indigo-200">AI Analysis Active</p>
+        {/* User Info & Logout */}
+        <div className="absolute bottom-0 w-full p-4 border-t border-slate-100 bg-white">
+          <div className="flex items-center justify-between mb-3 px-2">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold border-2 border-indigo-200">
+                {user?.name?.charAt(0).toUpperCase() || 'U'}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-slate-900 truncate">{user?.name || 'User'}</p>
+                <p className="text-xs text-slate-500 truncate">{user?.email || ''}</p>
+              </div>
             </div>
           </div>
-        </div> */}
+          <button
+            onClick={() => {
+              logout();
+              navigate('/login');
+            }}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+            Logout
+          </button>
+        </div>
       </aside>
 
       {/* Main Content */}

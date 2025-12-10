@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useParams, useNavigate, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import { Layout } from './components/Layout';
 import { Dashboard } from './pages/Dashboard';
 import { Setting } from './pages/Setting';   
 import Chat from './pages/Chats';
+import { Login } from './pages/Login';
 import { Call } from './components/Call';
 import { MOCK_PATIENTS } from './services/dataService';
 import { Patient } from './types';
@@ -56,6 +59,7 @@ const ChatRoute: React.FC = () => {
 const AppContent: React.FC = () => {
   const [isInCall, setIsInCall] = useState(false);
   const [callingPatient, setCallingPatient] = useState<Patient | null>(null);
+  const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const handleStartCall = (patient: Patient) => {
@@ -71,25 +75,60 @@ const AppContent: React.FC = () => {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Navigate to={`/dashboard/${MOCK_PATIENTS[0].name.toLowerCase().replace(/\s+/g, '-')}`} replace />} />
-        <Route path="/dashboard" element={<Navigate to={`/dashboard/${MOCK_PATIENTS[0].name.toLowerCase().replace(/\s+/g, '-')}`} replace />} />
-        <Route path="/dashboard/:patientId" element={
-          <Layout>
-            <DashboardRoute onStartCall={handleStartCall} />
-          </Layout>
+        {/* Login Route */}
+        <Route 
+          path="/login" 
+          element={
+            isAuthenticated ? (
+              <Navigate to={`/dashboard/${MOCK_PATIENTS[0].name.toLowerCase().replace(/\s+/g, '-')}`} replace />
+            ) : (
+              <Login onLogin={login} />
+            )
+          } 
+        />
+
+        {/* Protected Routes */}
+        <Route path="/" element={
+          <ProtectedRoute>
+            <Navigate to={`/dashboard/${MOCK_PATIENTS[0].name.toLowerCase().replace(/\s+/g, '-')}`} replace />
+          </ProtectedRoute>
         } />
-        <Route path="/chat" element={<Navigate to={`/chat/${MOCK_PATIENTS[0].name.toLowerCase().replace(/\s+/g, '-')}`} replace />} />
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Navigate to={`/dashboard/${MOCK_PATIENTS[0].name.toLowerCase().replace(/\s+/g, '-')}`} replace />
+          </ProtectedRoute>
+        } />
+        <Route path="/dashboard/:patientId" element={
+          <ProtectedRoute>
+            <Layout>
+              <DashboardRoute onStartCall={handleStartCall} />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/chat" element={
+          <ProtectedRoute>
+            <Navigate to={`/chat/${MOCK_PATIENTS[0].name.toLowerCase().replace(/\s+/g, '-')}`} replace />
+          </ProtectedRoute>
+        } />
         <Route path="/chat/:patientId" element={
-          <Layout>
-            <ChatRoute />
-          </Layout>
+          <ProtectedRoute>
+            <Layout>
+              <ChatRoute />
+            </Layout>
+          </ProtectedRoute>
         } />
         <Route path="/settings" element={
-          <Layout>
-            <Setting />
-          </Layout>
+          <ProtectedRoute>
+            <Layout>
+              <Setting />
+            </Layout>
+          </ProtectedRoute>
         } />
-        <Route path="*" element={<Navigate to={`/dashboard/${MOCK_PATIENTS[0].name.toLowerCase().replace(/\s+/g, '-')}`} replace />} />
+        <Route path="*" element={
+          <ProtectedRoute>
+            <Navigate to={`/dashboard/${MOCK_PATIENTS[0].name.toLowerCase().replace(/\s+/g, '-')}`} replace />
+          </ProtectedRoute>
+        } />
       </Routes>
       {isInCall && callingPatient && (
         <Call patient={callingPatient} onEndCall={handleEndCall} />
@@ -101,7 +140,9 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   return (
     <BrowserRouter>
-      <AppContent />
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </BrowserRouter>
   );
 };

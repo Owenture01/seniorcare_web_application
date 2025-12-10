@@ -79,7 +79,7 @@ const VoiceMessage: React.FC<{
       
       <audio ref={audioRef} src={audioUrl} />
       
-      <style jsx>{`
+      <style>{`
         @keyframes pulse {
           0%, 100% { transform: scaleY(1); }
           50% { transform: scaleY(1.5); }
