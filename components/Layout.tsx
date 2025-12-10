@@ -75,7 +75,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       `}>
         <div className="flex items-center justify-between h-16 px-6 border-b border-slate-100">
           <div className="flex items-center space-x-2 text-indigo-600">
-            <Activity className="w-8 h-8" />
+            {/* <Activity className="w-8 h-8" /> */}
+            <div className="inline-flex items-center justify-center w-10 h-10 mb-4">
+              <img src="/resources/images/SeniorCare.png" alt="SeniorCare Logo" className="w-full h-full object-cover rounded-2xl" />
+            </div>
             <span className="text-xl font-bold tracking-tight text-slate-900">SeniorCare+</span>
           </div>
           <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden text-slate-500">
